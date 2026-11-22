@@ -5,6 +5,7 @@
 *.pem
 *.key
 credentials*.txt
+credentials_local.md
 github_token.txt
 
 # --- Local database & uploads ---
