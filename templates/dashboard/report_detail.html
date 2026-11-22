@@ -1,0 +1,214 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Murojaat boshqaruvi — {{ report.tracking_code }}{% endblock %}
+
+{% block content %}
+<div class="py-4" style="background-color: var(--bg-light); min-height: 85vh;">
+    <div class="container">
+        <!-- Header -->
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+            <div>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-1 small">
+                        <li class="breadcrumb-item"><a href="{% url 'dashboard:index' %}">Portal</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'dashboard:report_list' %}">Murojaatlar</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">{{ report.tracking_code }}</li>
+                    </ol>
+                </nav>
+                <div class="d-flex align-items-center gap-2">
+                    <h3 class="fw-bold mb-0 text-dark">{{ report.title }}</h3>
+                </div>
+            </div>
+
+            <div class="d-flex align-items-center gap-2">
+                <a href="{% url 'reports:detail' report.tracking_code %}" target="_blank" class="btn btn-outline-custom">
+                    <i class="fa-solid fa-arrow-up-right-from-square me-1"></i> Saytdagi ko'rinishi
+                </a>
+                <span class="badge-status badge-{{ report.status }} fs-6 px-3 py-2">
+                    {{ report.get_status_display }}
+                </span>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Left: Information & Actions -->
+            <div class="col-lg-7">
+                <!-- Media & Description -->
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+                    {% if report.image %}
+                    <img src="{{ report.image.url }}" alt="{{ report.title }}" class="w-100 rounded-3 mb-3" style="max-height: 400px; object-fit: cover;">
+                    {% endif %}
+
+                    {% if report.video %}
+                    <div class="mb-3">
+                        <video controls class="w-100 rounded-3">
+                            <source src="{{ report.video.url }}">
+                        </video>
+                    </div>
+                    {% endif %}
+
+                    <h5 class="fw-bold mb-2">Tavsif:</h5>
+                    <p class="text-secondary mb-3" style="white-space: pre-line;">{{ report.description }}</p>
+
+                    <div class="p-3 bg-light rounded-3 border">
+                        <div class="small fw-bold text-dark mb-1"><i class="fa-solid fa-map-pin text-danger me-1"></i> Aniq manzil:</div>
+                        <div class="text-muted small">{{ report.address }} ({{ report.region.name }}, {{ report.district.name }})</div>
+                    </div>
+                </div>
+
+                <!-- Official Replies Form & List -->
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+                    <h5 class="fw-bold mb-3">
+                        <i class="fa-solid fa-reply text-success me-2"></i> Rasmiy javob yozish
+                    </h5>
+
+                    <form method="POST" class="mb-4">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="add_reply">
+                        <div class="mb-3">
+                            <label class="form-label small">Javob matni (fuqaro ushbu javobni saytda ko'radi):</label>
+                            <textarea name="reply_message" rows="3" class="form-control" placeholder="Murojaat bo'yicha qilingan ishlar yoki ko'rilgan chora haqida yozing..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fa-solid fa-paper-plane me-1"></i> Rasmiy javobni chop etish
+                        </button>
+                    </form>
+
+                    {% if report.replies.all %}
+                    <h6 class="fw-bold border-bottom pb-2 mb-3">Yozilgan rasmiy javoblar:</h6>
+                    {% for r in report.replies.all %}
+                    <div class="p-3 bg-light rounded-3 mb-2 border">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <strong class="small text-dark">{{ r.author.get_display_name }}</strong>
+                            <small class="text-muted">{{ r.created_at|date:"d.m.Y H:i" }}</small>
+                        </div>
+                        <p class="mb-0 text-secondary small" style="white-space: pre-line;">{{ r.message }}</p>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                </div>
+
+                <!-- Timeline History -->
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+                    <h5 class="fw-bold mb-4">
+                        <i class="fa-solid fa-timeline text-primary me-2"></i> Murojaat tarixi
+                    </h5>
+                    <div class="timeline">
+                        {% for h in report.history.all %}
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge-status badge-{{ h.new_status }}">{{ h.get_new_status_display }}</span>
+                                <small class="text-muted">{{ h.created_at|date:"d.m.Y H:i" }}</small>
+                            </div>
+                            {% if h.comment %}
+                            <p class="small text-secondary mt-1 mb-0">{{ h.comment }}</p>
+                            {% endif %}
+                            {% if h.changed_by %}
+                            <small class="text-muted">Mas'ul: {{ h.changed_by.get_display_name }}</small>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Status Changer & Staff Assignment -->
+            <div class="col-lg-5">
+                <!-- Status Control Box -->
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4 border-top border-4 border-primary">
+                    <h5 class="fw-bold mb-3">
+                        <i class="fa-solid fa-sliders text-primary me-2"></i> Holatni boshqarish
+                    </h5>
+
+                    <form method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="update_status">
+
+                        <div class="mb-3">
+                            <label class="form-label small">Yangi holatni tanlang:</label>
+                            <select name="status" class="form-select">
+                                {% for s_val, s_label in status_choices %}
+                                <option value="{{ s_val }}" {% if report.status == s_val %}selected{% endif %}>{{ s_label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small">Mas'ul xodimga biriktirish:</label>
+                            <select name="assigned_to" class="form-select">
+                                <option value="">-- Biriktirilmagan --</option>
+                                {% for s in staff_members %}
+                                <option value="{{ s.id }}" {% if report.assigned_to_id == s.id %}selected{% endif %}>
+                                    {{ s.get_display_name }} ({{ s.get_role_display }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small">Holat o'zgarishi izohi (tarixga yoziladi):</label>
+                            <textarea name="comment" rows="2" class="form-control" placeholder="Sabab yoki ko'rilgan chora..."></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary-custom w-100">
+                            <i class="fa-solid fa-check me-1"></i> Holatni saqlash
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Citizen Info Card -->
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+                    <h6 class="fw-bold mb-3">Murojaatchi ma'lumotlari</h6>
+                    <ul class="list-unstyled small mb-0 d-flex flex-column gap-2">
+                        <li class="d-flex justify-content-between py-1 border-bottom">
+                            <span class="text-muted">Ismi:</span>
+                            <span class="fw-semibold">{{ report.applicant_name|default:"Anonim fuqaro" }}</span>
+                        </li>
+                        <li class="d-flex justify-content-between py-1 border-bottom">
+                            <span class="text-muted">Telefon:</span>
+                            <span class="fw-bold text-dark">{{ report.applicant_phone }}</span>
+                        </li>
+                        <li class="d-flex justify-content-between py-1 border-bottom">
+                            <span class="text-muted">Foydalanuvchi hisobi:</span>
+                            <span>{% if report.user %}{{ report.user.username }}{% else %}Mehmon{% endif %}</span>
+                        </li>
+                        <li class="d-flex justify-content-between py-1">
+                            <span class="text-muted">Yaratilgan sana:</span>
+                            <span>{{ report.created_at|date:"d.m.Y H:i" }}</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Location Map -->
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+                    <h6 class="fw-bold mb-3">Xaritadagi joylashuv</h6>
+                    <div id="detail-map" class="mb-2"></div>
+                    <small class="text-muted font-monospace">{{ report.latitude }}, {{ report.longitude }}</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const lat = {{ report.latitude }};
+        const lng = {{ report.longitude }};
+
+        const map = L.map('detail-map').setView([lat, lng], 15);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap'
+        }).addTo(map);
+
+        const pin = createStatusPin('{{ report.status }}', '{{ report.category.icon }}');
+        L.marker([lat, lng], { icon: pin })
+            .addTo(map)
+            .bindPopup(`<strong>{{ report.title|escapejs }}</strong>`)
+            .openPopup();
+    });
+</script>
+{% endblock %}

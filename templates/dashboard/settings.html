@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Profil va Xavfsizlik Sozlamalari — Portal{% endblock %}
+
+{% block content %}
+<div class="py-4" style="background-color: var(--bg-light); min-height: 85vh;">
+    <div class="container">
+        <!-- Header -->
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+            <div>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-1 small">
+                        <li class="breadcrumb-item"><a href="{% url 'dashboard:index' %}">Portal</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Sozlamalar</li>
+                    </ol>
+                </nav>
+                <h3 class="fw-bold mb-0">Administrator Sozlamalari</h3>
+                <small class="text-muted">Login, shaxsiy ma'lumotlar va parolni o'zgartirish</small>
+            </div>
+
+            <a href="{% url 'dashboard:index' %}" class="btn btn-outline-custom">
+                <i class="fa-solid fa-gauge-high me-1"></i> Dashboard
+            </a>
+        </div>
+
+        <div class="row g-4">
+            <!-- Left: Profile Data Form -->
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+                    <div class="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom">
+                        <i class="fa-solid fa-id-badge text-primary fs-4"></i>
+                        <div>
+                            <h5 class="fw-bold mb-0">Profil ma'lumotlari</h5>
+                            <small class="text-muted">Login, ism, email va telefonni tahrirlash</small>
+                        </div>
+                    </div>
+
+                    <form method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="form_type" value="update_profile">
+
+                        <div class="mb-3">
+                            <label class="form-label" for="{{ profile_form.username.id_for_label }}">Login (Username) <span class="text-danger">*</span></label>
+                            {{ profile_form.username }}
+                            <small class="text-muted">Tizimga kirish uchun foydalaniladigan login</small>
+                            {% if profile_form.username.errors %}<div class="text-danger small mt-1">{{ profile_form.username.errors.0 }}</div>{% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label" for="{{ profile_form.full_name.id_for_label }}">To'liq ism-familiya</label>
+                            {{ profile_form.full_name }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label" for="{{ profile_form.email.id_for_label }}">Elektron pochta</label>
+                            {{ profile_form.email }}
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label" for="{{ profile_form.phone.id_for_label }}">Telefon raqami</label>
+                            {{ profile_form.phone }}
+                        </div>
+
+                        <button type="submit" class="btn btn-primary-custom w-100">
+                            <i class="fa-solid fa-floppy-disk me-1"></i> Ma'lumotlarni saqlash
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Right: Change Password Form -->
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+                    <div class="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom">
+                        <i class="fa-solid fa-lock text-warning fs-4"></i>
+                        <div>
+                            <h5 class="fw-bold mb-0">Parolni o'zgartirish</h5>
+                            <small class="text-muted">Xavfsizlik uchun yangi parol o'rnating</small>
+                        </div>
+                    </div>
+
+                    <form method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="form_type" value="change_password">
+
+                        <div class="mb-3">
+                            <label class="form-label" for="{{ password_form.old_password.id_for_label }}">Amaldagi parol <span class="text-danger">*</span></label>
+                            {{ password_form.old_password }}
+                            {% if password_form.old_password.errors %}<div class="text-danger small mt-1">{{ password_form.old_password.errors.0 }}</div>{% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label" for="{{ password_form.new_password.id_for_label }}">Yangi parol <span class="text-danger">*</span></label>
+                            {{ password_form.new_password }}
+                            {% if password_form.new_password.errors %}<div class="text-danger small mt-1">{{ password_form.new_password.errors.0 }}</div>{% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label" for="{{ password_form.confirm_password.id_for_label }}">Yangi parolni tasdiqlang <span class="text-danger">*</span></label>
+                            {{ password_form.confirm_password }}
+                            {% if password_form.confirm_password.errors %}<div class="text-danger small mt-1">{{ password_form.confirm_password.errors.0 }}</div>{% endif %}
+                        </div>
+
+                        <button type="submit" class="btn btn-warning w-100 fw-bold">
+                            <i class="fa-solid fa-key me-1"></i> Parolni yangilash
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

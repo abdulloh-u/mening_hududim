@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block title %}Server xatoligi (500) — MENING HUDUDIM{% endblock %}
+
+{% block content %}
+<div class="py-5 text-center" style="min-height: 70vh; display: flex; align-items: center;">
+    <div class="container">
+        <h1 class="display-1 fw-bold text-danger mb-2">500</h1>
+        <h3 class="fw-bold mb-3">Tizimda kutilmagan xatolik yuz berdi</h3>
+        <p class="text-muted mb-4 max-w-700 mx-auto">
+            Texnik mutaxassislarimiz bu muammo ustida ish olib bormoqda. Iltimos, birozdan so'ng qayta urinib ko'ring.
+        </p>
+        <a href="{% url 'reports:home' %}" class="btn btn-primary-custom px-4 py-2">
+            <i class="fa-solid fa-house me-2"></i> Bosh sahifaga qaytish
+        </a>
+    </div>
+</div>
+{% endblock %}

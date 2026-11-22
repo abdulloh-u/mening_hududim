@@ -1,0 +1,80 @@
+<footer class="footer-custom">
+    <div class="container">
+        <div class="row g-4">
+            <!-- Brand & Mission -->
+            <div class="col-lg-4 col-md-6">
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <div class="brand-icon" style="width: 34px; height: 34px; font-size: 1rem;">
+                        <i class="fa-solid fa-flag"></i>
+                    </div>
+                    <span class="fs-5 fw-bold text-dark">MENING HUDUDIM</span>
+                </div>
+                <p class="small text-secondary mb-3">
+                    O‘zbekiston fuqarolari va davlat tashkilotlari o‘rtasida jamoatchilik nazorati va ochiq muloqotni ta’minlovchi zamonaviy raqamli platforma.
+                </p>
+                <div class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2" style="border-radius: 8px;">
+                    <i class="fa-solid fa-quote-left me-1"></i> Muammolar ko‘rinadi — yechimlar boshlanadi!
+                </div>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="col-lg-2 col-md-6 col-6">
+                <h6 class="text-dark fw-bold mb-3">Bo'limlar</h6>
+                <ul class="list-unstyled small d-flex flex-column gap-2 mb-0">
+                    <li><a href="{% url 'reports:home' %}">Bosh sahifa</a></li>
+                    <li><a href="{% url 'reports:map' %}">Muammolar xaritasi</a></li>
+                    <li><a href="{% url 'reports:list' %}">Barcha murojaatlar</a></li>
+                    <li><a href="{% url 'reports:create' %}">Muammo yuborish</a></li>
+                    <li><a href="{% url 'reports:track' %}">Murojaatni tekshirish</a></li>
+                </ul>
+            </div>
+
+            <!-- Categories -->
+            <div class="col-lg-3 col-md-6 col-6">
+                <h6 class="text-dark fw-bold mb-3">Asosiy yo'nalishlar</h6>
+                <ul class="list-unstyled small d-flex flex-column gap-2 mb-0">
+                    <li><a href="{% url 'reports:list' %}?category=1">Yo'llar va transport</a></li>
+                    <li><a href="{% url 'reports:list' %}?category=2">Ichimlik suvi ta'minoti</a></li>
+                    <li><a href="{% url 'reports:list' %}?category=3">Elektr va ko'cha chiroqlari</a></li>
+                    <li><a href="{% url 'reports:list' %}?category=4">Chiqindilar va tozalik</a></li>
+                    <li><a href="{% url 'reports:list' %}?category=6">Ekologiya va daraxtlar</a></li>
+                </ul>
+            </div>
+
+            <!-- Emergency Contacts -->
+            <div class="col-lg-3 col-md-6">
+                <h6 class="text-dark fw-bold mb-3">Tezkor aloqa</h6>
+                <ul class="list-unstyled small d-flex flex-column gap-2 mb-3">
+                    <li class="d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-phone text-primary"></i>
+                        <span>Yagona Call-markaz: <strong>1152</strong></span>
+                    </li>
+                    <li class="d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-envelope text-primary"></i>
+                        <span>info@meninghududim.uz</span>
+                    </li>
+                    <li class="d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-shield-cat text-primary"></i>
+                        <span>O‘zbekiston Respublikasi, Toshkent</span>
+                    </li>
+                </ul>
+                <div class="d-flex gap-2">
+                    <a href="#" class="btn btn-sm btn-outline-primary rounded-circle" style="width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;"><i class="fa-brands fa-telegram"></i></a>
+                    <a href="#" class="btn btn-sm btn-outline-primary rounded-circle" style="width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="#" class="btn btn-sm btn-outline-primary rounded-circle" style="width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;"><i class="fa-brands fa-facebook"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <hr class="footer-divider">
+
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center small text-secondary">
+            <p class="mb-2 mb-md-0">&copy; 2026 MENING HUDUDIM. Barcha huquqlar himoyalangan.</p>
+            <div class="d-flex gap-3">
+                <a href="{% url 'reports:about' %}">Foydalanish qoidalari</a>
+                <a href="{% url 'reports:about' %}">Maxfiylik siyosati</a>
+                <a href="{% url 'dashboard:index' %}">Xodimlar uchun</a>
+            </div>
+        </div>
+    </div>
+</footer>

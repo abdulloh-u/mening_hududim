@@ -1,0 +1,81 @@
+{% load static %}
+<!-- Top Mobile Header (Phones and Tablets < 992px) -->
+<header class="mobile-top-header d-lg-none bg-white border-bottom sticky-top px-3 py-2">
+    <div class="d-flex align-items-center justify-content-between">
+        <!-- Drawer Toggle Button -->
+        <button class="btn mobile-menu-btn p-2 rounded-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas" aria-controls="sidebarOffcanvas" aria-label="Menyu">
+            <i class="fa-solid fa-bars-staggered fs-5"></i>
+        </button>
+
+        <!-- Brand Center -->
+        <a href="{% url 'reports:home' %}" class="d-flex align-items-center gap-2 text-decoration-none text-dark">
+            <div class="brand-icon" style="width: 32px; height: 32px; font-size: 0.95rem; border-radius: 8px;">
+                <i class="fa-solid fa-flag"></i>
+            </div>
+            <span class="fw-bold fs-6 tracking-tight">MENING HUDUDIM</span>
+        </a>
+
+        <!-- Quick Profile / Login Action -->
+        {% if user.is_authenticated %}
+        <a href="{% url 'accounts:profile' %}" class="rounded-circle bg-primary text-white fw-bold d-flex align-items-center justify-content-center text-decoration-none" style="width: 34px; height: 34px; font-size: 13px;">
+            {{ user.get_display_name|slice:":1"|upper }}
+        </a>
+        {% else %}
+        <a href="{% url 'accounts:login' %}" class="btn btn-sm btn-outline-primary py-1 px-2" style="border-radius: 8px; font-size: 12px; font-weight: 600;">
+            Kirish
+        </a>
+        {% endif %}
+    </div>
+</header>
+
+<!-- Offcanvas Sidebar Drawer for Mobile -->
+<div class="offcanvas offcanvas-start border-0 shadow-lg d-lg-none" tabindex="-1" id="sidebarOffcanvas" aria-labelledby="sidebarOffcanvasLabel" style="width: 290px;">
+    <div class="offcanvas-header p-2 pb-0 d-flex justify-content-end">
+        <button type="button" class="btn-close text-reset shadow-none" data-bs-dismiss="offcanvas" aria-label="Yopish"></button>
+    </div>
+    <div class="offcanvas-body p-0">
+        {% include 'sidebar.html' %}
+    </div>
+</div>
+
+<!-- Bottom Mobile Navigation Bar (Always Accessible on Phones) -->
+<nav class="mobile-bottom-bar d-lg-none">
+    <a href="{% url 'reports:home' %}" class="mobile-nav-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+        <i class="fa-solid fa-house"></i>
+        <span>Asosiy</span>
+    </a>
+
+    <a href="{% url 'reports:map' %}" class="mobile-nav-item {% if request.resolver_match.url_name == 'map' %}active{% endif %}">
+        <i class="fa-solid fa-map-location-dot"></i>
+        <span>Xarita</span>
+    </a>
+
+    <!-- Center Floating Action Button (FAB) -->
+    <a href="{% url 'reports:create' %}" class="mobile-fab-btn" title="Muammo yuborish">
+        <i class="fa-solid fa-plus"></i>
+    </a>
+
+    <a href="{% url 'reports:list' %}" class="mobile-nav-item {% if request.resolver_match.url_name == 'list' %}active{% endif %}">
+        <i class="fa-solid fa-list-check"></i>
+        <span>Ro'yxat</span>
+    </a>
+
+    {% if user.is_authenticated %}
+        {% if user.is_staff_member %}
+        <a href="{% url 'dashboard:index' %}" class="mobile-nav-item {% if 'portal' in request.path %}active{% endif %}">
+            <i class="fa-solid fa-gauge-high text-primary"></i>
+            <span>Portal</span>
+        </a>
+        {% else %}
+        <a href="{% url 'accounts:profile' %}" class="mobile-nav-item {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+            <i class="fa-solid fa-user"></i>
+            <span>Kabinet</span>
+        </a>
+        {% endif %}
+    {% else %}
+    <a href="{% url 'accounts:login' %}" class="mobile-nav-item {% if request.resolver_match.url_name == 'login' %}active{% endif %}">
+        <i class="fa-solid fa-arrow-right-to-bracket"></i>
+        <span>Kirish</span>
+    </a>
+    {% endif %}
+</nav>

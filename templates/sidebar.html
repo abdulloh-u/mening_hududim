@@ -1,0 +1,163 @@
+{% load static %}
+<div class="sidebar-wrapper d-flex flex-column h-100 p-3 bg-white border-end">
+    <!-- Brand Header -->
+    <div class="sidebar-brand mb-4 pb-3 border-bottom d-flex align-items-start justify-content-between gap-2">
+        <a href="{% url 'reports:home' %}" class="brand-badge text-decoration-none">
+            <div class="brand-icon">
+                <i class="fa-solid fa-flag"></i>
+            </div>
+            <div>
+                <span class="fs-5 fw-bold text-dark">MENING HUDUDIM</span>
+                <span class="badge bg-primary text-white ms-1" style="font-size: 9px; vertical-align: middle;">UZ</span>
+                <div class="small text-muted" style="font-size: 11px;">Milliy jamoatchilik portali</div>
+            </div>
+        </a>
+        <button type="button" class="btn btn-sm btn-light border rounded-3 d-none d-lg-inline-flex sidebar-toggle flex-shrink-0" data-sidebar-toggle aria-expanded="true" aria-label="Menyu yopish">
+            <i class="fa-solid fa-chevron-left"></i>
+        </button>
+    </div>
+
+    <!-- Main CTA Button -->
+    <div class="mb-4">
+        <a href="{% url 'reports:create' %}" class="btn btn-primary-custom w-100 d-flex align-items-center justify-content-center gap-2 py-2 shadow-sm">
+            <i class="fa-solid fa-circle-plus fs-5"></i>
+            <span class="fw-bold">Muammo yuborish</span>
+        </a>
+    </div>
+
+    <!-- Scrollable Navigation Area -->
+    <div class="sidebar-scroll-area flex-grow-1 overflow-y-auto pe-1">
+        <!-- Main Navigation Links -->
+        <div class="mb-4">
+            <div class="sidebar-section-title text-uppercase text-muted fw-bold small mb-2 ps-2" style="font-size: 11px; letter-spacing: 0.5px;">
+                Asosiy bo'limlar
+            </div>
+            <ul class="nav nav-pills flex-column gap-1">
+                <li class="nav-item">
+                    <a href="{% url 'reports:home' %}" class="nav-link side-nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+                        <i class="fa-solid fa-house me-2"></i> Bosh sahifa
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'reports:map' %}" class="nav-link side-nav-link {% if request.resolver_match.url_name == 'map' %}active{% endif %}">
+                        <i class="fa-solid fa-map-location-dot me-2"></i> Muammolar xaritasi
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'reports:list' %}" class="nav-link side-nav-link {% if request.resolver_match.url_name == 'list' %}active{% endif %}">
+                        <i class="fa-solid fa-list-check me-2"></i> Barcha murojaatlar
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'reports:track' %}" class="nav-link side-nav-link {% if request.resolver_match.url_name == 'track' %}active{% endif %}">
+                        <i class="fa-solid fa-magnifying-glass me-2"></i> Murojaatni kuzatish
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'reports:about' %}" class="nav-link side-nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}">
+                        <i class="fa-solid fa-circle-info me-2"></i> Biz haqimizda
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Categories Section -->
+        <div class="mb-4">
+            <div class="sidebar-section-title text-uppercase text-muted fw-bold small mb-2 ps-2" style="font-size: 11px; letter-spacing: 0.5px;">
+                Muammo yo'nalishlari
+            </div>
+            <ul class="nav nav-pills flex-column gap-1">
+                {% for cat in nav_categories %}
+                <li class="nav-item">
+                    <a href="{% url 'reports:list' %}?category={{ cat.id }}" class="nav-link side-nav-link py-1 px-2 small text-dark d-flex align-items-center justify-content-between">
+                        <div>
+                            <i class="{{ cat.icon }} me-2" style="color: {{ cat.color }}; width: 16px;"></i>
+                            <span>{{ cat.name }}</span>
+                        </div>
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- Admin / Staff Section (If Authorized) -->
+        {% if user.is_authenticated and user.is_staff_member %}
+        <div class="mb-4 p-2 bg-primary-subtle rounded-3 border border-primary-subtle">
+            <div class="text-uppercase text-primary fw-bold small mb-2 ps-1" style="font-size: 11px;">
+                <i class="fa-solid fa-shield-halved me-1"></i> Boshqaruv
+            </div>
+            <ul class="nav nav-pills flex-column gap-1">
+                <li class="nav-item">
+                    <a href="{% url 'dashboard:index' %}" class="nav-link side-nav-link py-1 small text-primary fw-semibold">
+                        <i class="fa-solid fa-gauge-high me-2"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'dashboard:report_list' %}" class="nav-link side-nav-link py-1 small text-primary">
+                        <i class="fa-solid fa-clipboard-list me-2"></i> Murojaatlar nazorati
+                    </a>
+                </li>
+                {% if user.is_superuser or user.role == 'superadmin' or user.role == 'admin' %}
+                <li class="nav-item">
+                    <a href="{% url 'dashboard:staff_list' %}" class="nav-link side-nav-link py-1 small text-primary">
+                        <i class="fa-solid fa-users-gear me-2"></i> Xodimlar & Ustalar
+                    </a>
+                </li>
+                {% endif %}
+                <li class="nav-item">
+                    <a href="{% url 'dashboard:settings' %}" class="nav-link side-nav-link py-1 small text-primary">
+                        <i class="fa-solid fa-gear me-2"></i> Sozlamalar
+                    </a>
+                </li>
+            </ul>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- User Profile Footer Area -->
+    <div class="sidebar-user-footer pt-3 border-top mt-auto">
+        {% if user.is_authenticated %}
+        <div class="d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center gap-2 overflow-hidden">
+                <div class="rounded-circle bg-primary text-white fw-bold d-flex align-items-center justify-content-center flex-shrink-0" style="width: 38px; height: 38px;">
+                    {{ user.get_display_name|slice:":1"|upper }}
+                </div>
+                <div class="text-truncate">
+                    <div class="fw-bold small text-dark text-truncate">{{ user.get_display_name }}</div>
+                    <div class="text-muted" style="font-size: 11px;">{{ user.get_role_display }}</div>
+                </div>
+            </div>
+            <div class="dropdown">
+                <button class="btn btn-sm btn-light border-0 rounded-circle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="width: 32px; height: 32px;">
+                    <i class="fa-solid fa-ellipsis-vertical text-muted"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow border-0 small" style="border-radius: 10px;">
+                    <li><a class="dropdown-item py-2" href="{% url 'accounts:profile' %}"><i class="fa-solid fa-user me-2 text-muted"></i> Profil kabineti</a></li>
+                    {% if user.is_staff_member %}
+                    <li><a class="dropdown-item py-2" href="{% url 'dashboard:index' %}"><i class="fa-solid fa-gauge-high me-2 text-muted"></i> Admin Portal</a></li>
+                    <li><a class="dropdown-item py-2" href="{% url 'dashboard:settings' %}"><i class="fa-solid fa-gear me-2 text-muted"></i> Sozlamalar</a></li>
+                    {% endif %}
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <form action="{% url 'accounts:logout' %}" method="POST">
+                            {% csrf_token %}
+                            <button type="submit" class="dropdown-item py-2 text-danger">
+                                <i class="fa-solid fa-arrow-right-from-bracket me-2"></i> Chiqish
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        {% else %}
+        <div class="d-grid gap-2">
+            <a href="{% url 'accounts:login' %}" class="btn btn-outline-custom btn-sm">
+                <i class="fa-solid fa-arrow-right-to-bracket me-1"></i> Kirish
+            </a>
+            <a href="{% url 'accounts:register' %}" class="btn btn-light border btn-sm text-primary fw-semibold">
+                Ro'yxatdan o'tish
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>

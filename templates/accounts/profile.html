@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+
+{% block title %}Mening kabinetim — MENING HUDUDIM{% endblock %}
+
+{% block content %}
+<div class="py-5" style="background-color: var(--bg-light);">
+    <div class="container">
+        <!-- Profile Header -->
+        <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="rounded-circle bg-primary text-white fs-2 fw-bold d-flex align-items-center justify-content-center" style="width: 64px; height: 64px;">
+                        {{ user.get_display_name|slice:":1"|upper }}
+                    </div>
+                    <div>
+                        <h4 class="fw-bold mb-1">{{ user.get_display_name }}</h4>
+                        <div class="d-flex flex-wrap align-items-center gap-2 small text-muted">
+                            <span class="badge bg-primary-subtle text-primary">{{ user.get_role_display }}</span>
+                            <span><i class="fa-solid fa-user me-1"></i> @{{ user.username }}</span>
+                            {% if user.phone %}<span><i class="fa-solid fa-phone me-1"></i> {{ user.phone }}</span>{% endif %}
+                            <span><i class="fa-regular fa-calendar me-1"></i> A'zo bo'lgan: {{ user.date_joined|date:"d.m.Y" }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <a href="{% url 'reports:create' %}" class="btn btn-primary-custom">
+                        <i class="fa-solid fa-plus me-1"></i> Yangi murojaat
+                    </a>
+                    {% if user.is_staff_member %}
+                    <a href="{% url 'dashboard:index' %}" class="btn btn-outline-primary">
+                        <i class="fa-solid fa-gauge-high me-1"></i> Admin Panel
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- User Stats Cards -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-3 col-6">
+                <div class="stat-card">
+                    <div class="stat-icon bg-primary-subtle text-primary"><i class="fa-solid fa-folder-open"></i></div>
+                    <div class="stat-value">{{ total_reports }}</div>
+                    <div class="stat-label">Jami yuborganlarim</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="stat-card">
+                    <div class="stat-icon bg-success-subtle text-success"><i class="fa-solid fa-circle-check"></i></div>
+                    <div class="stat-value">{{ resolved_reports }}</div>
+                    <div class="stat-label">Hal etilganlar</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="stat-card">
+                    <div class="stat-icon bg-warning-subtle text-warning"><i class="fa-solid fa-clock"></i></div>
+                    <div class="stat-value">{{ in_progress_reports }}</div>
+                    <div class="stat-label">Jarayonda</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="stat-card">
+                    <div class="stat-icon bg-info-subtle text-info"><i class="fa-solid fa-circle-dot"></i></div>
+                    <div class="stat-value">{{ new_reports }}</div>
+                    <div class="stat-label">Yangi murojaatlar</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Left: User Reports Table -->
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold mb-0">Mening murojaatlarim</h5>
+                        <span class="badge bg-light text-dark border">{{ total_reports }} ta</span>
+                    </div>
+
+                    {% if user_reports %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light small">
+                                <tr>
+                                    <th>Raqami</th>
+                                    <th>Muammo</th>
+                                    <th>Hudud</th>
+                                    <th>Holati</th>
+                                    <th>Sana</th>
+                                    <th class="text-end">Amal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for rep in user_reports %}
+                                <tr>
+                                    <td>
+                                        <span class="font-monospace fw-bold small text-primary">{{ rep.tracking_code }}</span>
+                                    </td>
+                                    <td>
+                                        <div class="fw-semibold text-dark small">{{ rep.title|truncatechars:35 }}</div>
+                                        <small class="text-muted">{{ rep.category.name }}</small>
+                                    </td>
+                                    <td class="small text-muted">
+                                        {{ rep.region.name }}, {{ rep.district.name }}
+                                    </td>
+                                    <td>
+                                        <span class="badge-status badge-{{ rep.status }}">
+                                            {{ rep.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td class="small text-muted">
+                                        {{ rep.created_at|date:"d.m.Y" }}
+                                    </td>
+                                    <td class="text-end">
+                                        <a href="{% url 'reports:detail' rep.tracking_code %}" class="btn btn-sm btn-outline-primary" style="border-radius: 8px;">
+                                            Ko'rish
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fa-regular fa-folder-open fs-1 text-muted mb-3 d-block"></i>
+                        <h6 class="fw-bold">Siz hali hech qanday murojaat yubormagansiz</h6>
+                        <p class="text-muted small mb-3">Hududingizdagi birinchi muammo haqida xabar bering.</p>
+                        <a href="{% url 'reports:create' %}" class="btn btn-primary-custom btn-sm">
+                            <i class="fa-solid fa-plus me-1"></i> Murojaat yuborish
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Right: Profile Settings -->
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+                    <h5 class="fw-bold mb-3">Profil ma'lumotlarini yangilash</h5>
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label" for="{{ form.full_name.id_for_label }}">To'liq ism</label>
+                            {{ form.full_name }}
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="{{ form.phone.id_for_label }}">Telefon</label>
+                            {{ form.phone }}
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="{{ form.email.id_for_label }}">Email</label>
+                            {{ form.email }}
+                        </div>
+                        <button type="submit" class="btn btn-primary-custom w-100">
+                            <i class="fa-solid fa-floppy-disk me-1"></i> Saqlash
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

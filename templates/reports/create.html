@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Muammo yuborish — MENING HUDUDIM{% endblock %}
+
+{% block content %}
+<div class="py-5" style="background-color: var(--bg-light);">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-9 col-xl-8">
+                <!-- Header -->
+                <div class="text-center mb-4">
+                    <span class="badge bg-primary-subtle text-primary fw-bold px-3 py-1 rounded-pill mb-2">Murojaat shakli</span>
+                    <h2 class="fw-bold">Hududingizdagi muammo haqida xabar bering</h2>
+                    <p class="text-muted">Iltimos, ma'lumotlarni imkon qadar aniq va to'liq to'ldiring.</p>
+                </div>
+
+                <!-- Form Card -->
+                <div class="form-card">
+                    <form method="POST" enctype="multipart/form-data" novalidate>
+                        {% csrf_token %}
+
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                            <div>{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        <!-- Section 1: Basic Info -->
+                        <h5 class="fw-bold text-dark border-bottom pb-2 mb-3">
+                            <i class="fa-solid fa-file-lines text-primary me-2"></i> 1. Muammo haqida asosiy ma'lumot
+                        </h5>
+
+                        <div class="mb-3">
+                            <label class="form-label" for="{{ form.title.id_for_label }}">Muammo sarlavhasi <span class="text-danger">*</span></label>
+                            {{ form.title }}
+                            {% if form.title.errors %}
+                            <div class="text-danger small mt-1">{{ form.title.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label" for="{{ form.category.id_for_label }}">Kategoriya <span class="text-danger">*</span></label>
+                                {{ form.category }}
+                                {% if form.category.errors %}
+                                <div class="text-danger small mt-1">{{ form.category.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Soha ta'rifi</label>
+                                <div class="form-control bg-light text-muted small" style="height: 42px; display: flex; align-items: center;">
+                                    Tegishli davlat idorasiga yo'naltiriladi
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label" for="{{ form.description.id_for_label }}">Batafsil tavsif <span class="text-danger">*</span></label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                            <div class="text-danger small mt-1">{{ form.description.errors.0 }}</div>
+                            {% endif %}
+                            <small class="text-muted">Muammoning kelib chiqish vaqti, holati va keltirayotgan xavfini bayon qiling.</small>
+                        </div>
+
+                        <!-- Section 2: Location -->
+                        <h5 class="fw-bold text-dark border-bottom pb-2 mb-3 mt-4">
+                            <i class="fa-solid fa-map-location-dot text-primary me-2"></i> 2. Joylashuv va manzil
+                        </h5>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label" for="id_region">Viloyat / Hudud <span class="text-danger">*</span></label>
+                                {{ form.region }}
+                                {% if form.region.errors %}
+                                <div class="text-danger small mt-1">{{ form.region.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="id_district">Tuman / Shahar <span class="text-danger">*</span></label>
+                                {{ form.district }}
+                                {% if form.district.errors %}
+                                <div class="text-danger small mt-1">{{ form.district.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label" for="{{ form.address.id_for_label }}">Aniq manzil yoki mo'ljal <span class="text-danger">*</span></label>
+                            {{ form.address }}
+                            {% if form.address.errors %}
+                            <div class="text-danger small mt-1">{{ form.address.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Interactive Leaflet Map Picker -->
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <label class="form-label mb-0">Xaritadan aniq nuqtani tanlang <span class="text-danger">*</span></label>
+                                <button type="button" id="btn-get-location" class="btn btn-sm btn-outline-primary" style="border-radius: 8px;">
+                                    <i class="fa-solid fa-location-crosshairs me-1"></i> Mening joylashuvim
+                                </button>
+                            </div>
+
+                            <div id="map-picker"></div>
+                            <small class="text-muted d-block mt-1">
+                                <i class="fa-solid fa-hand-pointer me-1"></i> Xaritani siljitib yoki bosib qizil belgini muammo joyiga qo'ying.
+                            </small>
+
+                            {{ form.latitude }}
+                            {{ form.longitude }}
+                        </div>
+
+                        <!-- Section 3: Media Upload -->
+                        <h5 class="fw-bold text-dark border-bottom pb-2 mb-3 mt-4">
+                            <i class="fa-solid fa-camera text-primary me-2"></i> 3. Foto va video dalillar
+                        </h5>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label" for="id_image">Muammo fotosurati <span class="text-danger">*</span></label>
+                                {{ form.image }}
+                                {% if form.image.errors %}
+                                <div class="text-danger small mt-1">{{ form.image.errors.0 }}</div>
+                                {% endif %}
+                                <small class="text-muted d-block mt-1">Formatlar: JPG, PNG, WEBP (maks. 10MB)</small>
+                                <img id="preview_img_element" class="img-preview w-100 border shadow-sm" alt="Rasm prevyusi">
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label" for="{{ form.video.id_for_label }}">Video lavha (ixtiyoriy)</label>
+                                {{ form.video }}
+                                {% if form.video.errors %}
+                                <div class="text-danger small mt-1">{{ form.video.errors.0 }}</div>
+                                {% endif %}
+                                <small class="text-muted d-block mt-1">Formatlar: MP4, MOV (maks. 25MB)</small>
+                            </div>
+                        </div>
+
+                        <!-- Section 4: Contact Info -->
+                        <h5 class="fw-bold text-dark border-bottom pb-2 mb-3 mt-4">
+                            <i class="fa-solid fa-user text-primary me-2"></i> 4. Murojaatchi ma'lumotlari
+                        </h5>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label" for="{{ form.applicant_name.id_for_label }}">{{ form.applicant_name.label }}</label>
+                                {{ form.applicant_name }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="{{ form.applicant_phone.id_for_label }}">Telefon raqamingiz <span class="text-danger">*</span></label>
+                                {{ form.applicant_phone }}
+                                {% if form.applicant_phone.errors %}
+                                <div class="text-danger small mt-1">{{ form.applicant_phone.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-primary-custom btn-lg py-3">
+                                <i class="fa-solid fa-paper-plane me-2"></i> Murojaatni yuborish
+                            </button>
+                            <small class="text-center text-muted mt-2">
+                                Yuborish orqali siz platformaning foydalanish qoidalariga rozilik bildirasiz.
+                            </small>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        if (typeof initMapPicker === 'function') {
+            initMapPicker(41.2995, 69.2401);
+        }
+    });
+</script>
+{% endblock %}

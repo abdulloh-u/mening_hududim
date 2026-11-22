@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Murojaatlar boshqaruvi — Portal{% endblock %}
+
+{% block content %}
+<div class="py-4" style="background-color: var(--bg-light); min-height: 85vh;">
+    <div class="container">
+        <!-- Header -->
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+            <div>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-1 small">
+                        <li class="breadcrumb-item"><a href="{% url 'dashboard:index' %}">Portal</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Murojaatlar</li>
+                    </ol>
+                </nav>
+                <h3 class="fw-bold mb-0">Murojaatlarni boshqarish</h3>
+                <small class="text-muted">Jami saralangan: {{ total_filtered }} ta murojaat</small>
+            </div>
+
+            <div class="d-flex gap-2">
+                <a href="{% url 'dashboard:export_csv' %}{% if querystring %}?{{ querystring }}{% endif %}" class="btn btn-outline-success">
+                    <i class="fa-solid fa-file-csv me-1"></i> CSV Eksport
+                </a>
+                <a href="{% url 'dashboard:index' %}" class="btn btn-outline-custom">
+                    <i class="fa-solid fa-gauge-high me-1"></i> Dashboard
+                </a>
+            </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="card border-0 shadow-sm rounded-4 p-3 mb-4 bg-white">
+            <form method="GET" class="row g-2 align-items-center">
+                <div class="col-lg-3 col-md-6">
+                    <input type="text" name="q" class="form-control bg-light" placeholder="Qidiruv: raqam, sarlavha, ism..." value="{{ search_query }}">
+                </div>
+
+                <div class="col-lg-2 col-md-3">
+                    <select name="status" class="form-select bg-light">
+                        <option value="">Barcha holatlar</option>
+                        {% for s_val, s_label in status_choices %}
+                        <option value="{{ s_val }}" {% if selected_status == s_val %}selected{% endif %}>{{ s_label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-lg-2 col-md-3">
+                    <select name="category" class="form-select bg-light">
+                        <option value="">Barcha kategoriyalar</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat.id }}" {% if selected_category == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-lg-2 col-md-3">
+                    <select name="region" class="form-select bg-light">
+                        <option value="">Barcha hududlar</option>
+                        {% for reg in regions %}
+                        <option value="{{ reg.id }}" {% if selected_region == reg.id|stringformat:"s" %}selected{% endif %}>{{ reg.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-lg-2 col-md-3">
+                    <select name="date" class="form-select bg-light">
+                        <option value="">Barcha vaqtlar</option>
+                        <option value="today" {% if selected_date == 'today' %}selected{% endif %}>Bugungi</option>
+                        <option value="week" {% if selected_date == 'week' %}selected{% endif %}>Shu haftadagi</option>
+                        <option value="month" {% if selected_date == 'month' %}selected{% endif %}>Shu oydagi</option>
+                    </select>
+                </div>
+
+                <div class="col-lg-1 col-md-12">
+                    <button type="submit" class="btn btn-primary-custom w-100">Filtr</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Reports Table -->
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light small">
+                        <tr>
+                            <th>Raqam</th>
+                            <th>Muammo</th>
+                            <th>Hudud</th>
+                            <th>Murojaatchi</th>
+                            <th>Mas'ul</th>
+                            <th>Holati</th>
+                            <th>Sana</th>
+                            <th class="text-end">Amal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for rep in page_obj %}
+                        <tr>
+                            <td>
+                                <span class="font-monospace fw-bold text-primary small">{{ rep.tracking_code }}</span>
+                            </td>
+                            <td>
+                                <div class="fw-semibold small text-dark">{{ rep.title|truncatechars:38 }}</div>
+                                <small class="text-muted">{{ rep.category.name }}</small>
+                            </td>
+                            <td class="small text-muted">
+                                {{ rep.region.name }}, {{ rep.district.name }}
+                            </td>
+                            <td class="small">
+                                <div>{{ rep.applicant_name|default:"Anonim" }}</div>
+                                <small class="text-muted">{{ rep.applicant_phone }}</small>
+                            </td>
+                            <td class="small">
+                                {% if rep.assigned_to %}
+                                <span class="badge bg-light text-dark border">{{ rep.assigned_to.get_display_name }}</span>
+                                {% else %}
+                                <span class="text-muted fst-italic">Biriktirilmagan</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge-status badge-{{ rep.status }}">
+                                    {{ rep.get_status_display }}
+                                </span>
+                            </td>
+                            <td class="small text-muted">{{ rep.created_at|date:"d.m.Y H:i" }}</td>
+                            <td class="text-end">
+                                <a href="{% url 'dashboard:report_detail' rep.tracking_code %}" class="btn btn-sm btn-primary-custom py-1 px-3">
+                                    Ko'rish
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center py-5 text-muted">
+                                Hech qanday murojaat topilmadi.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if page_obj.has_other_pages %}
+            <nav class="mt-4" aria-label="Sahifalar">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if querystring %}&{{ querystring }}{% endif %}">&laquo; Oldingi</a>
+                    </li>
+                    {% endif %}
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item"><a class="page-link" href="?page={{ num }}{% if querystring %}&{{ querystring }}{% endif %}">{{ num }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if querystring %}&{{ querystring }}{% endif %}">Keyingi &raquo;</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

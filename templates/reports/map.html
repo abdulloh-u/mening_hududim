@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}O‘zbekiston Muammolar Xaritasi — MENING HUDUDIM{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-3 py-3 bg-white border-bottom">
+    <div class="row align-items-center g-2">
+        <div class="col-lg-3 col-md-4">
+            <h5 class="fw-bold mb-0 text-dark">
+                <i class="fa-solid fa-map-location-dot text-primary me-2"></i> O‘zbekiston Xaritasi
+            </h5>
+            <small class="text-muted">14 ta viloyat / respublika bo‘yicha real monitoring</small>
+        </div>
+
+        <div class="col-lg-9 col-md-8 text-md-end d-flex gap-2 justify-content-lg-end">
+            <button type="button" class="btn btn-sm btn-outline-custom" data-mh-toggle="map-filters">
+                <i class="fa-solid fa-sliders me-1"></i> <span class="filter-toggle-label">Filtrlarni yig‘ish</span>
+            </button>
+            <a href="{% url 'reports:list' %}" class="btn btn-sm btn-outline-custom">
+                <i class="fa-solid fa-list me-1"></i> Ro‘yxat
+            </a>
+            <a href="{% url 'reports:create' %}" class="btn btn-sm btn-primary-custom">
+                <i class="fa-solid fa-plus me-1"></i> Muammo yuborish
+            </a>
+        </div>
+    </div>
+
+    <!-- Collapsible filter section -->
+    <div id="map-filters" class="row align-items-center g-2 mt-2 pt-2 border-top mh-filter-panel">
+        <div class="col-lg-3 col-md-4">
+            <select id="filter-region" class="form-select form-select-sm">
+                <option value="">Barcha hududlar (14 ta)</option>
+                {% for reg in regions %}
+                <option value="{{ reg.id }}">{{ reg.name }} ({{ reg.report_count }})</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-lg-3 col-md-4">
+            <select id="filter-category" class="form-select form-select-sm">
+                <option value="">Barcha kategoriyalar</option>
+                {% for cat in categories %}
+                <option value="{{ cat.id }}">{{ cat.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-lg-2 col-md-4">
+            <select id="filter-status" class="form-select form-select-sm">
+                <option value="">Barcha holatlar</option>
+                {% for s_val, s_label in status_choices %}
+                <option value="{{ s_val }}">{{ s_label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Quick region jump bar -->
+        <div class="col-lg-4 col-md-12">
+            <div class="d-flex align-items-center gap-1 overflow-x-auto py-1" style="white-space: nowrap;">
+                <span class="small fw-bold text-muted me-2"><i class="fa-solid fa-crosshairs me-1"></i> Tezkor o‘tish:</span>
+                <button type="button" class="btn btn-xs btn-primary-custom py-1 px-2 rounded-pill small" onclick="jumpToCoords(41.3775, 64.5853, 6)">
+                    🇺🇿 Butun O‘zbekiston
+                </button>
+                {% for reg in regions %}
+                <button type="button" class="btn btn-xs btn-light border py-1 px-2 rounded-pill small hover-primary" onclick="jumpToRegion({{ reg.id }}, {{ reg.latitude }}, {{ reg.longitude }}, {{ reg.zoom_level }})">
+                    {{ reg.name }}
+                </button>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="position-relative">
+    <div id="full-map"></div>
+
+    <!-- Closable side panel: all 14 regions of Uzbekistan -->
+    <aside class="mh-side-panel" id="region-panel" data-side-panel>
+        <div class="mh-side-panel-head">
+            <span class="fw-bold small"><i class="fa-solid fa-layer-group me-2 text-primary"></i> O‘zbekiston hududlari</span>
+            <button type="button" class="btn-close" aria-label="Yopish" onclick="toggleMapPanel('region-panel')"></button>
+        </div>
+        <div class="mh-side-panel-body">
+            {% for reg in regions %}
+            <button type="button" class="mh-region-item" onclick="jumpToRegion({{ reg.id }}, {{ reg.latitude }}, {{ reg.longitude }}, {{ reg.zoom_level }})">
+                <span class="mh-region-dot"></span>
+                <span class="flex-grow-1 text-truncate">{{ reg.name }}</span>
+                <span class="badge bg-primary-subtle text-primary rounded-pill">{{ reg.report_count }}</span>
+            </button>
+            {% endfor %}
+        </div>
+    </aside>
+
+    <!-- Closable status legend -->
+    <aside class="mh-side-panel mh-legend-panel d-none" id="legend-panel" data-side-panel>
+        <div class="mh-side-panel-head">
+            <span class="fw-bold small"><i class="fa-solid fa-circle-info me-2 text-primary"></i> Holat belgilari</span>
+            <button type="button" class="btn-close" aria-label="Yopish" onclick="toggleMapPanel('legend-panel')"></button>
+        </div>
+        <div class="mh-side-panel-body" style="font-size: 12px;">
+            <div class="d-flex align-items-center gap-2 mb-1"><span class="status-dot" style="background:#2563EB;"></span> Yangi murojaat</div>
+            <div class="d-flex align-items-center gap-2 mb-1"><span class="status-dot" style="background:#F59E0B;"></span> Ko‘rib chiqilmoqda</div>
+            <div class="d-flex align-items-center gap-2 mb-1"><span class="status-dot" style="background:#0284C7;"></span> Tashkilotga yuborildi</div>
+            <div class="d-flex align-items-center gap-2 mb-1"><span class="status-dot" style="background:#10B981;"></span> Hal qilingan</div>
+            <div class="d-flex align-items-center gap-2"><span class="status-dot" style="background:#EF4444;"></span> Rad etilgan</div>
+        </div>
+    </aside>
+
+    <!-- Re-open buttons for closed panels -->
+    <div class="mh-panel-opener" id="region-panel-opener" style="display:none;">
+        <button type="button" class="btn btn-sm btn-primary-custom shadow" data-panel-opener="region-panel" onclick="toggleMapPanel('region-panel')">
+            <i class="fa-solid fa-layer-group me-1"></i> Hududlar
+        </button>
+        <button type="button" class="btn btn-sm btn-light border shadow" data-panel-opener="legend-panel" onclick="toggleMapPanel('legend-panel')">
+            <i class="fa-solid fa-circle-info me-1"></i> Belgi
+        </button>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let fullMapInstance = null;
+
+    document.addEventListener('DOMContentLoaded', function () {
+        if (typeof initFullMap === 'function') {
+            fullMapInstance = initFullMap();
+        }
+
+        syncPanelOpeners();
+
+        // Collapsible filter bar
+        const toggle = document.querySelector('[data-mh-toggle="map-filters"]');
+        const panel = document.getElementById('map-filters');
+        if (toggle && panel) {
+            toggle.addEventListener('click', function () {
+                const collapsed = panel.classList.toggle('d-none');
+                const label = toggle.querySelector('.filter-toggle-label');
+                if (label) label.textContent = collapsed ? 'Filtrlarni ochish' : 'Filtrlarni yig‘ish';
+                if (window.mainMap) setTimeout(function () { window.mainMap.invalidateSize(); }, 120);
+            });
+        }
+    });
+
+    function refreshMapSize() {
+        if (window.mainMap) window.mainMap.invalidateSize();
+    }
+
+    function jumpToCoords(lat, lng, zoom) {
+        const filterReg = document.getElementById('filter-region');
+        if (filterReg) {
+            filterReg.value = '';
+            filterReg.dispatchEvent(new Event('change'));
+        }
+        if (window.mainMap) {
+            window.mainMap.flyTo([lat, lng], zoom, { animate: true, duration: 1.2 });
+        }
+    }
+
+    function jumpToRegion(regId, lat, lng, zoom) {
+        const filterReg = document.getElementById('filter-region');
+        if (filterReg) {
+            filterReg.value = regId;
+            filterReg.dispatchEvent(new Event('change'));
+        }
+        if (window.mainMap) {
+            window.mainMap.flyTo([lat, lng], zoom || 10, { animate: true, duration: 1.2 });
+        }
+    }
+
+    function syncPanelOpeners() {
+        const opener = document.getElementById('region-panel-opener');
+        if (!opener) return;
+        let anyClosed = false;
+        opener.querySelectorAll('[data-panel-opener]').forEach(function (btn) {
+            const target = document.getElementById(btn.getAttribute('data-panel-opener'));
+            const hidden = !target || target.classList.contains('d-none');
+            btn.style.display = hidden ? '' : 'none';
+            if (hidden) anyClosed = true;
+        });
+        opener.style.display = anyClosed ? 'flex' : 'none';
+    }
+
+    // Close / re-open the small panels beside the map
+    window.toggleMapPanel = function (id) {
+        const panel = document.getElementById(id);
+        if (!panel) return;
+        panel.classList.toggle('d-none');
+        syncPanelOpeners();
+        refreshMapSize();
+    };
+</script>
+{% endblock %}

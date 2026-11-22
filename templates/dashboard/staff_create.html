@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Yangi xodim / usta qo'shish — Portal{% endblock %}
+
+{% block content %}
+<div class="py-4" style="background-color: var(--bg-light); min-height: 85vh;">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <!-- Breadcrumb -->
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-2 small">
+                        <li class="breadcrumb-item"><a href="{% url 'dashboard:index' %}">Portal</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'dashboard:staff_list' %}">Xodimlar</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Yangi xodim qo'shish</li>
+                    </ol>
+                </nav>
+
+                <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white">
+                    <div class="d-flex align-items-center gap-3 mb-4 border-bottom pb-3">
+                        <div class="rounded-circle bg-primary-subtle text-primary p-3 d-flex align-items-center justify-content-center" style="width: 52px; height: 52px;">
+                            <i class="fa-solid fa-user-plus fs-4"></i>
+                        </div>
+                        <div>
+                            <h4 class="fw-bold mb-0">Yangi mas'ul xodim yoki usta qo'shish</h4>
+                            <small class="text-muted">{% if is_regional_admin %}Faqat {{ request.user.region.name }} uchun usta yoki hududiy xodim qo'shasiz — darhol tasdiqlanadi.{% else %}Hududiy xodim, usta yoki viloyat administratori hisobini yaratish.{% endif %}</small>
+                        </div>
+                    </div>
+
+                    <form method="POST">
+                        {% csrf_token %}
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label" for="{{ form.full_name.id_for_label }}">To'liq ism-familiya <span class="text-danger">*</span></label>
+                                {{ form.full_name }}
+                                {% if form.full_name.errors %}<div class="text-danger small mt-1">{{ form.full_name.errors.0 }}</div>{% endif %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label" for="{{ form.username.id_for_label }}">Login (username) <span class="text-danger">*</span></label>
+                                {{ form.username }}
+                                {% if form.username.errors %}<div class="text-danger small mt-1">{{ form.username.errors.0 }}</div>{% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label" for="{{ form.role.id_for_label }}">Vazifasi / Roli <span class="text-danger">*</span></label>
+                                {{ form.role }}
+                                <small class="text-muted d-block mt-1">{% if is_regional_admin %}Faqat usta va hududiy xodim — viloyat admini qo'shish huquqi yo'q.{% else %}Usta, hududiy xodim yoki viloyat administratori. Super Admin sifatida yangi hisob yaratilmaydi.{% endif %}</small>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label" for="{{ form.region.id_for_label }}">Biriktiriladigan viloyat / hudud</label>
+                                {{ form.region }}
+                                <small class="text-muted d-block mt-1">
+                                    {% if is_regional_admin %}Bu maydon {{ request.user.region.name }} bilan cheklangan — boshqa viloyatni tanlay olmaysiz.
+                                    {% else %}Barcha xodimlar faqat shu viloyat arizalarini ko'radi. Bitta viloyatga bitta admin.{% endif %}
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label" for="{{ form.phone.id_for_label }}">Telefon raqami <span class="text-danger">*</span></label>
+                                {{ form.phone }}
+                                {% if form.phone.errors %}<div class="text-danger small mt-1">{{ form.phone.errors.0 }}</div>{% endif %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label" for="{{ form.email.id_for_label }}">Elektron pochta <small class="text-muted fw-normal">(ixtiyoriy)</small></label>
+                                {{ form.email }}
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label" for="{{ form.password.id_for_label }}">Boshlang'ich parol <span class="text-danger">*</span></label>
+                                {{ form.password }}
+                                <small class="text-muted">Kamida 12 belgi. Xodim keyinchalik o'z kabinetida parolini o'zgartiradi.</small>
+                                {% if form.password.errors %}<div class="text-danger small mt-1">{{ form.password.errors.0 }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="{{ form.password_confirm.id_for_label }}">Parolni tasdiqlang <span class="text-danger">*</span></label>
+                                {{ form.password_confirm }}
+                                {% if form.password_confirm.errors %}<div class="text-danger small mt-1">{{ form.password_confirm.errors.0 }}</div>{% endif %}
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary-custom px-4 py-2">
+                                <i class="fa-solid fa-check me-1"></i> Xodimni saqlash
+                            </button>
+                            <a href="{% url 'dashboard:staff_list' %}" class="btn btn-outline-custom px-4 py-2">
+                                Bekor qilish
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

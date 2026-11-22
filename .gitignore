@@ -1,0 +1,36 @@
+# --- Secrets & local configuration ---
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials*.txt
+github_token.txt
+
+# --- Local database & uploads ---
+*.sqlite3
+*.sqlite3-journal
+db.sqlite3
+media/
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# --- Virtual environments ---
+venv/
+env/
+.venv/
+
+# --- Editors & OS ---
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# --- Django ---
+staticfiles/
+*.log

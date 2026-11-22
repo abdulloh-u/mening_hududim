@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Biz haqimizda — MENING HUDUDIM{% endblock %}
+
+{% block content %}
+<div class="py-5" style="background-color: var(--bg-light);">
+    <div class="container">
+        <!-- Hero Title -->
+        <div class="text-center max-w-700 mx-auto mb-5">
+            <span class="badge bg-primary-subtle text-primary fw-bold px-3 py-1 rounded-pill mb-2">Loyiha missiyasi</span>
+            <h1 class="fw-bold">MENING HUDUDIM loyihasi haqida</h1>
+            <p class="text-muted fs-5">"Muammolar ko‘rinadi — yechimlar boshlanadi!"</p>
+        </div>
+
+        <div class="row g-4 mb-5">
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+                    <h4 class="fw-bold text-dark mb-3">
+                        <i class="fa-solid fa-bullseye text-primary me-2"></i> Bizning maqsadimiz
+                    </h4>
+                    <p class="text-secondary leading-relaxed">
+                        "MENING HUDUDIM" — bu O‘zbekiston Respublikasi fuqarolari uchun mo‘ljallangan jamoatchilik nazorati va shahar muammolarini hal qilishga ko‘maklashuvchi zamonaviy raqamli platformadir.
+                    </p>
+                    <p class="text-secondary leading-relaxed">
+                        Ushbu platforma orqali har bir fuqaro o‘z mahallasidagi, ko‘chasidagi buzilgan yo‘llar, ichimlik suvi uzilishlari, yonmayotgan chiroqlar, to‘planib qolgan chiqindilar va noqonuniy daraxt kesish holatlari haqida tezkor va qulay fotosurat bilan xabar bera oladi.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+                    <h4 class="fw-bold text-dark mb-3">
+                        <i class="fa-solid fa-scale-balanced text-primary me-2"></i> Asosiy prinsiplarimiz
+                    </h4>
+                    <ul class="list-unstyled d-flex flex-column gap-3 text-secondary mb-0">
+                        <li class="d-flex align-items-start gap-2">
+                            <i class="fa-solid fa-circle-check text-success mt-1"></i>
+                            <div><strong>Shaffoflik:</strong> Har bir murojaat jamoatchilikka ochiq ko'rinadi va holati onlayn yangilanadi.</div>
+                        </li>
+                        <li class="d-flex align-items-start gap-2">
+                            <i class="fa-solid fa-circle-check text-success mt-1"></i>
+                            <div><strong>Tezkorlik:</strong> Murojaat bevosita tegishli hududiy mas'ul xodimlarga va kommunal xizmatlarga yo'naltiriladi.</div>
+                        </li>
+                        <li class="d-flex align-items-start gap-2">
+                            <i class="fa-solid fa-circle-check text-success mt-1"></i>
+                            <div><strong>Natijadorlik:</strong> Muammo bartaraf etilgach, rasmiy hisobot va natija fotosurati ilova qilinadi.</div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- FAQ Section -->
+        <div class="card border-0 shadow-sm rounded-4 p-5 bg-white mb-5">
+            <h3 class="fw-bold mb-4 text-center">Tez-tez beriladigan savollar (FAQ)</h3>
+
+            <div class="accordion accordion-flush" id="faqAccordion">
+                <div class="accordion-item border-bottom">
+                    <h2 class="accordion-header" id="faqOne">
+                        <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                            Murojaat yuborish uchun ro'yxatdan o'tish shartmi?
+                        </button>
+                    </h2>
+                    <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="faqOne" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body text-secondary">
+                            Yo'q, fuqarolar ro'yxatdan o'tmasdan ham murojaat yuborishlari mumkin. Biroq, ro'yxatdan o'tgan holda o'z shaxsiy kabinetingizda barcha murojaatlaringiz tarixini qulay kuzatib borasiz.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item border-bottom">
+                    <h2 class="accordion-header" id="faqTwo">
+                        <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                            Murojaat necha kunda ko'rib chiqiladi?
+                        </button>
+                    </h2>
+                    <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="faqTwo" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body text-secondary">
+                            Dastlabki tekshiruv 24 soat ichida amalga oshiriladi va mas'ul idoraga topshiriladi. Muammoning murakkabligiga qarab 3 kundan 15 kungacha to'liq hal etiladi.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="faqThree">
+                        <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                            Murojaat holatini qanday bilish mumkin?
+                        </button>
+                    </h2>
+                    <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="faqThree" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body text-secondary">
+                            Murojaat yuborilganda beriladigan noyob raqamni (masalan: MH-2026-A109F) bosh sahifadagi qidiruvga yoki "Kuzatish" sahifasiga kiritib, istalgan vaqtda bilishingiz mumkin.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

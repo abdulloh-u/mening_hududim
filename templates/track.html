@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Murojaatni tekshirish — MENING HUDUDIM{% endblock %}
+
+{% block content %}
+<div class="py-5" style="background-color: var(--bg-light); min-height: 75vh; display: flex; align-items: center;">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="card border-0 shadow-lg rounded-4 p-5 bg-white text-center">
+                    <div class="rounded-circle bg-primary-subtle text-primary d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
+                        <i class="fa-solid fa-magnifying-glass-location fs-1"></i>
+                    </div>
+
+                    <h2 class="fw-bold mb-2">Murojaat holatini tekshirish</h2>
+                    <p class="text-muted mb-4">
+                        Murojaatingiz yuborilganda berilgan noyob raqamni kiriting (masalan: <strong>MH-2026-A109F</strong>).
+                    </p>
+
+                    <form action="{% url 'reports:track' %}" method="GET">
+                        <div class="mb-3">
+                            <input type="text" name="code" class="form-control form-control-lg text-center font-monospace" placeholder="MH-2026-XXXXX" value="{{ searched_code }}" required style="letter-spacing: 2px; font-weight: 700; text-transform: uppercase;">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary-custom btn-lg w-100 py-3">
+                            <i class="fa-solid fa-search me-2"></i> Murojaatni topish
+                        </button>
+                    </form>
+
+                    <div class="mt-4 pt-4 border-top text-start">
+                        <h6 class="fw-bold text-dark mb-2">Eslatma:</h6>
+                        <ul class="small text-muted mb-0 ps-3">
+                            <li>Murojaat raqami yuborilgan vaqtda ekranda ko'rsatiladi.</li>
+                            <li>Ro'yxatdan o'tgan foydalanuvchilar o'z kabinetida barcha arizalarini bir joyda ko'rishlari mumkin.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

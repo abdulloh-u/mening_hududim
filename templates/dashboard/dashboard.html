@@ -1,0 +1,224 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Boshqaruv Paneli (Portal) — MENING HUDUDIM{% endblock %}
+
+{% block content %}
+<div class="py-4" style="background-color: var(--bg-light); min-height: 85vh;">
+    <div class="container">
+        <!-- Dashboard Sub-nav -->
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3 bg-white p-3 rounded-4 border shadow-sm">
+            <div class="d-flex align-items-center gap-3">
+                <div class="rounded-circle bg-primary-subtle text-primary p-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                    <i class="fa-solid fa-gauge-high fs-5"></i>
+                </div>
+                <div>
+                    <h5 class="fw-bold mb-0">Boshqaruv Paneli (Admin Portal)</h5>
+                    <small class="text-muted">{{ user.get_display_name }} ({{ user.get_role_display }})</small>
+                </div>
+            </div>
+
+            <div class="d-flex flex-wrap gap-2">
+                <a href="{% url 'dashboard:report_list' %}" class="btn btn-outline-custom">
+                    <i class="fa-solid fa-list-check me-1"></i> Murojaatlar
+                </a>
+                {% if user.is_superuser or user.role == 'superadmin' or user.role == 'admin' %}
+                <a href="{% url 'dashboard:staff_list' %}" class="btn btn-outline-custom">
+                    <i class="fa-solid fa-users-gear me-1"></i> Xodimlar & Ustalar
+                </a>
+                {% endif %}
+                <a href="{% url 'dashboard:settings' %}" class="btn btn-outline-custom">
+                    <i class="fa-solid fa-gear me-1"></i> Sozlamalar
+                </a>
+                <a href="{% url 'dashboard:export_csv' %}" class="btn btn-outline-success">
+                    <i class="fa-solid fa-file-csv me-1"></i> CSV
+                </a>
+            </div>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="row g-3 mb-4">
+            <div class="col-lg-2 col-md-4 col-6">
+                <div class="dash-kpi-card text-center">
+                    <div class="text-muted small fw-semibold mb-1">Jami</div>
+                    <div class="fs-2 fw-bolder text-dark">{{ total_count }}</div>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 col-6">
+                <div class="dash-kpi-card text-center border-primary-subtle bg-primary-subtle">
+                    <div class="text-primary small fw-semibold mb-1">Yangi</div>
+                    <div class="fs-2 fw-bolder text-primary">{{ new_count }}</div>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 col-6">
+                <div class="dash-kpi-card text-center border-warning-subtle bg-warning-subtle">
+                    <div class="text-warning-emphasis small fw-semibold mb-1">Ko'rib chiqilmoqda</div>
+                    <div class="fs-2 fw-bolder text-warning-emphasis">{{ in_progress_count }}</div>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 col-6">
+                <div class="dash-kpi-card text-center border-info-subtle bg-info-subtle">
+                    <div class="text-info small fw-semibold mb-1">Biriktirilgan</div>
+                    <div class="fs-2 fw-bolder text-info">{{ assigned_count }}</div>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 col-6">
+                <div class="dash-kpi-card text-center border-success-subtle bg-success-subtle">
+                    <div class="text-success small fw-semibold mb-1">Hal etilgan</div>
+                    <div class="fs-2 fw-bolder text-success">{{ resolved_count }}</div>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 col-6">
+                <div class="dash-kpi-card text-center border-danger-subtle bg-danger-subtle">
+                    <div class="text-danger small fw-semibold mb-1">Rad etilgan</div>
+                    <div class="fs-2 fw-bolder text-danger">{{ rejected_count }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="row g-4 mb-4">
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+                    <h5 class="fw-bold mb-3"><i class="fa-solid fa-chart-pie text-primary me-2"></i> Kategoriyalar bo'yicha taqsimot</h5>
+                    <div style="height: 280px; position: relative;">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+                    <h5 class="fw-bold mb-3"><i class="fa-solid fa-chart-column text-primary me-2"></i> Hududlar bo'yicha murojaatlar</h5>
+                    <div style="height: 280px; position: relative;">
+                        <canvas id="regionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Reports Table -->
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0">Oxirgi kelib tushgan murojaatlar</h5>
+                <a href="{% url 'dashboard:report_list' %}" class="small text-primary fw-semibold text-decoration-none">
+                    Barchasini ko'rish <i class="fa-solid fa-arrow-right ms-1"></i>
+                </a>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light small">
+                        <tr>
+                            <th>Raqam</th>
+                            <th>Murojaat sarlavhasi</th>
+                            <th>Kategoriya</th>
+                            <th>Hudud</th>
+                            <th>Holati</th>
+                            <th>Sana</th>
+                            <th class="text-end">Amal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in recent_reports %}
+                        <tr>
+                            <td>
+                                <span class="font-monospace fw-bold text-primary small">{{ r.tracking_code }}</span>
+                            </td>
+                            <td>
+                                <div class="fw-semibold small text-dark">{{ r.title|truncatechars:40 }}</div>
+                                <small class="text-muted">{{ r.applicant_name|default:"Anonim" }} | {{ r.applicant_phone }}</small>
+                            </td>
+                            <td class="small">{{ r.category.name }}</td>
+                            <td class="small text-muted">{{ r.region.name }}, {{ r.district.name }}</td>
+                            <td>
+                                <span class="badge-status badge-{{ r.status }}">
+                                    {{ r.get_status_display }}
+                                </span>
+                            </td>
+                            <td class="small text-muted">{{ r.created_at|date:"d.m.Y H:i" }}</td>
+                            <td class="text-end">
+                                <a href="{% url 'dashboard:report_detail' r.tracking_code %}" class="btn btn-sm btn-primary-custom py-1 px-3">
+                                    Boshqarish
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-muted">Murojaatlar mavjud emas.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ cat_labels|json_script:"cat-labels" }}
+{{ cat_counts|json_script:"cat-counts" }}
+{{ cat_colors|json_script:"cat-colors" }}
+{{ region_labels|json_script:"region-labels" }}
+{{ region_counts|json_script:"region-counts" }}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Category Doughnut Chart — JSON is escaped by Django (no XSS sink).
+        const catLabels = JSON.parse(document.getElementById('cat-labels').textContent);
+        const catCounts = JSON.parse(document.getElementById('cat-counts').textContent);
+        const catColors = JSON.parse(document.getElementById('cat-colors').textContent);
+
+        const ctxCat = document.getElementById('categoryChart');
+        if (ctxCat && catLabels.length > 0) {
+            new Chart(ctxCat, {
+                type: 'doughnut',
+                data: {
+                    labels: catLabels,
+                    datasets: [{
+                        data: catCounts,
+                        backgroundColor: catColors,
+                        borderWidth: 2,
+                        borderColor: '#FFFFFF'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right' }
+                    }
+                }
+            });
+        }
+
+        // Region Bar Chart
+        const regionLabels = JSON.parse(document.getElementById('region-labels').textContent);
+        const regionCounts = JSON.parse(document.getElementById('region-counts').textContent);
+
+        const ctxReg = document.getElementById('regionChart');
+        if (ctxReg && regionLabels.length > 0) {
+            new Chart(ctxReg, {
+                type: 'bar',
+                data: {
+                    labels: regionLabels,
+                    datasets: [{
+                        label: 'Murojaatlar soni',
+                        data: regionCounts,
+                        backgroundColor: '#2563EB',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true, ticks: { precision: 0 } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

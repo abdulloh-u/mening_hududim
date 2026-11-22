@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block title %}Sahifa topilmadi (404) — MENING HUDUDIM{% endblock %}
+
+{% block content %}
+<div class="py-5 text-center" style="min-height: 70vh; display: flex; align-items: center;">
+    <div class="container">
+        <h1 class="display-1 fw-bold text-primary mb-2">404</h1>
+        <h3 class="fw-bold mb-3">Kechirasiz, siz qidirgan sahifa topilmadi</h3>
+        <p class="text-muted mb-4 max-w-700 mx-auto">
+            Manzil noto'g'ri kiritilgan yoki sahifa o'chirilgan bo'lishi mumkin.
+        </p>
+        <a href="{% url 'reports:home' %}" class="btn btn-primary-custom px-4 py-2">
+            <i class="fa-solid fa-house me-2"></i> Bosh sahifaga qaytish
+        </a>
+    </div>
+</div>
+{% endblock %}

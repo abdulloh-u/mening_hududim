@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Barcha murojaatlar — MENING HUDUDIM{% endblock %}
+
+{% block content %}
+<div class="py-5" style="background-color: var(--bg-light);">
+    <div class="container">
+        <!-- Title & Header -->
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+            <div>
+                <span class="badge bg-primary-subtle text-primary fw-bold px-3 py-1 rounded-pill mb-2">Murojaatlar reyestri</span>
+                <h2 class="fw-bold mb-1">Fuqarolar murojaatlari</h2>
+                <p class="text-muted small mb-0">Jami topilgan: <strong>{{ total_found }}</strong> ta murojaat</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{% url 'reports:map' %}" class="btn btn-outline-custom">
+                    <i class="fa-solid fa-map-location-dot me-1 text-primary"></i> Xarita ko'rinishi
+                </a>
+                <a href="{% url 'reports:create' %}" class="btn btn-primary-custom">
+                    <i class="fa-solid fa-plus me-1"></i> Yangi murojaat
+                </a>
+            </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="card border-0 shadow-sm rounded-4 p-3 mb-4 bg-white">
+            <form method="GET" class="row g-2 align-items-center">
+                <div class="col-lg-3 col-md-6">
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0 text-muted"><i class="fa-solid fa-magnifying-glass"></i></span>
+                        <input type="text" name="q" class="form-control bg-light border-start-0" placeholder="Qidiruv (nomi, raqami, manzil)..." value="{{ search_query }}">
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <select name="category" class="form-select bg-light">
+                        <option value="">Barcha kategoriyalar</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat.id }}" {% if selected_category == cat.id|stringformat:"s" %}selected{% endif %}>
+                            {{ cat.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <select name="region" class="form-select bg-light">
+                        <option value="">Barcha viloyatlar</option>
+                        {% for reg in regions %}
+                        <option value="{{ reg.id }}" {% if selected_region == reg.id|stringformat:"s" %}selected{% endif %}>
+                            {{ reg.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-lg-2 col-md-4">
+                    <select name="status" class="form-select bg-light">
+                        <option value="">Barcha holatlar</option>
+                        {% for s_val, s_label in status_choices %}
+                        <option value="{{ s_val }}" {% if selected_status == s_val %}selected{% endif %}>{{ s_label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-lg-1 col-md-2">
+                    <button type="submit" class="btn btn-primary-custom w-100">
+                        Filtr
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Reports Cards Grid -->
+        <div class="row g-4">
+            {% for report in page_obj %}
+            <div class="col-lg-4 col-md-6">
+                <div class="report-card">
+                    <div class="report-thumb-wrapper">
+                        {% if report.image %}
+                        <img src="{{ report.image.url }}" alt="{{ report.title }}" class="report-thumb">
+                        {% else %}
+                        <div class="w-100 h-100 d-flex align-items-center justify-content-center bg-secondary-subtle text-muted">
+                            <i class="fa-solid fa-image fs-1"></i>
+                        </div>
+                        {% endif %}
+
+                        <div class="report-badge-floating">
+                            <span class="badge-status badge-{{ report.status }}">
+                                {% if report.status == 'new' %}<i class="fa-solid fa-circle-dot"></i>
+                                {% elif report.status == 'in_progress' %}<i class="fa-solid fa-clock"></i>
+                                {% elif report.status == 'assigned' %}<i class="fa-solid fa-paper-plane"></i>
+                                {% elif report.status == 'resolved' %}<i class="fa-solid fa-circle-check"></i>
+                                {% else %}<i class="fa-solid fa-ban"></i>{% endif %}
+                                {{ report.get_status_display }}
+                            </span>
+                        </div>
+
+                        <span class="report-code-badge">{{ report.tracking_code }}</span>
+                    </div>
+
+                    <div class="report-content">
+                        <div class="d-flex align-items-center gap-2 mb-2 text-primary small fw-semibold">
+                            <i class="{{ report.category.icon }}"></i>
+                            <span>{{ report.category.name }}</span>
+                        </div>
+
+                        <h5 class="report-title">
+                            <a href="{% url 'reports:detail' report.tracking_code %}" class="text-decoration-none text-dark">
+                                {{ report.title }}
+                            </a>
+                        </h5>
+
+                        <p class="report-desc">{{ report.description }}</p>
+
+                        <div class="report-meta">
+                            <div>
+                                <i class="fa-solid fa-location-dot me-1 text-danger"></i>
+                                <span>{{ report.region.name }}, {{ report.district.name }}</span>
+                            </div>
+                            <div>
+                                <i class="fa-regular fa-calendar me-1"></i>
+                                <span>{{ report.created_at|date:"d.m.Y" }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center py-5">
+                <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                    <i class="fa-solid fa-magnifying-glass fs-2 text-muted"></i>
+                </div>
+                <h5 class="fw-bold">Hech qanday murojaat topilmadi</h5>
+                <p class="text-muted small">Qidiruv parametrlari bo'yicha ma'lumot mavjud emas. Filtrlarni tozalab ko'ring.</p>
+                <a href="{% url 'reports:list' %}" class="btn btn-outline-custom">Filtrlarni tozalash</a>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <nav class="mt-5" aria-label="Sahifalar">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if querystring %}&{{ querystring }}{% endif %}">&laquo; Oldingi</a>
+                </li>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ num }}{% if querystring %}&{{ querystring }}{% endif %}">{{ num }}</a>
+                    </li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if querystring %}&{{ querystring }}{% endif %}">Keyingi &raquo;</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

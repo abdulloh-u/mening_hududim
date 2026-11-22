@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Viloyat administratorlari — Portal{% endblock %}
+
+{% block content %}
+<div class="py-4" style="background-color: var(--bg-light); min-height: 85vh;">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-2 small">
+                <li class="breadcrumb-item"><a href="{% url 'dashboard:index' %}">Portal</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'dashboard:staff_list' %}">Xodimlar</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Viloyat adminlari</li>
+            </ol>
+        </nav>
+
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+            <div>
+                <h3 class="fw-bold mb-1">Har bir viloyatga o‘z administratori</h3>
+                <small class="text-muted">
+                    To‘ldirilgan: <strong class="text-primary">{{ filled_count }}/{{ total_count }}</strong>.
+                    Har bir admin faqat o‘z viloyatining murojaatlarini ko‘radi.
+                </small>
+            </div>
+            <div class="d-flex gap-2 flex-wrap">
+                <form method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="create_missing">
+                    <button type="submit" class="btn btn-primary-custom">
+                        <i class="fa-solid fa-user-shield me-1"></i> Yetmaganlarini yaratish
+                    </button>
+                </form>
+                <a href="{% url 'dashboard:staff_list' %}" class="btn btn-outline-custom">
+                    <i class="fa-solid fa-arrow-left me-1"></i> Xodimlar ro‘yxati
+                </a>
+            </div>
+        </div>
+
+        {% if created_credentials %}
+        <div class="card border-primary border-2 shadow-sm rounded-4 p-4 mb-4 bg-white">
+            <div class="d-flex align-items-center gap-2 mb-3">
+                <i class="fa-solid fa-key fs-4 text-primary"></i>
+                <div>
+                    <h5 class="fw-bold mb-0">Yangi parollar — faqat bir marta ko‘rsatiladi</h5>
+                    <small class="text-danger fw-semibold">Ularni hozir nusxalab oling. Sahifani yangilasangiz qayta ko‘rinmaydi.</small>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-sm align-middle mb-0">
+                    <thead class="table-light small">
+                        <tr><th>Viloyat</th><th>Login</th><th>Parol</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for item in created_credentials %}
+                        <tr>
+                            <td>{{ item.region }}</td>
+                            <td><code>{{ item.username }}</code></td>
+                            <td><code class="text-primary fw-bold">{{ item.password }}</code></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light small">
+                        <tr>
+                            <th>Viloyat / Respublika</th>
+                            <th>Administrator</th>
+                            <th>Login</th>
+                            <th>Holati</th>
+                            <th class="text-end">Amal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in rows %}
+                        <tr>
+                            <td class="fw-semibold small">{{ row.region.name }}</td>
+                            {% if row.admin %}
+                            <td class="small">{{ row.admin.get_display_name }}</td>
+                            <td><code class="small">{{ row.admin.username }}</code></td>
+                            <td><span class="badge bg-success-subtle text-success">Faol</span></td>
+                            <td class="text-end"><span class="text-muted small">Tayyor</span></td>
+                            {% else %}
+                            <td colspan="3"><span class="text-danger small fw-semibold">Administrator yo‘q</span></td>
+                            <td class="text-end">
+                                <form method="POST">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="create_one">
+                                    <input type="hidden" name="region_id" value="{{ row.region.id }}">
+                                    <button type="submit" class="btn btn-sm btn-outline-primary">
+                                        <i class="fa-solid fa-plus me-1"></i> Yaratish
+                                    </button>
+                                </form>
+                            </td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="alert alert-info small mt-4 border-0 bg-primary-subtle text-primary">
+            <i class="fa-solid fa-shield-halved me-2"></i>
+            Xavfsizlik: yangi adminlar kuchli tasodifiy parol bilan yaratiladi, Django admin sahifasiga kira olmaydi
+            va faqat biriktirilgan viloyat doirasida ishlaydi. Super Admin huquqi faqat Abuda.
+        </div>
+    </div>
+</div>
+{% endblock %}
